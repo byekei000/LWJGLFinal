@@ -1,47 +1,15 @@
 import org.lwjgl.glfw.GLFW;
 
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwWindowHint;
-import static org.lwjgl.opengl.GL11.GL_TRUE;
+public class Main{
+    public static void main(String[] args){
+        Window window = new Window(800, 600, "LWJGL");
+        window.create();
 
-public class Main implements Runnable {
-
-    private int width = 1280;
-    private int height = 720;
-    private Thread thread;
-    private boolean running = false;
-    private long window;
-
-    public void start() {
-        running = false;
-        thread = new Thread(this, "Game");
-        thread.start();
-    }
-
-    private void init() {
-        if(glfwInit() != GL_TRUE){
-
+        while(!window.closed()){
+            window.update();
+            if(window.isKeyPressed(GLFW.GLFW_KEY_A)) System.out.println("Pressed A");
+            if(window.isKeyReleased(GLFW.GLFW_KEY_A)) System.out.println("Released A");
+            window.swapBuffers();
         }
-        glfwWindowHint();
-    }
-
-    public void run() {
-        init();
-        while (running) {
-            update();
-            render();
-        }
-    }
-
-    private void update() {
-
-    }
-
-    private void render() {
-
-    }
-
-    public static void main(String[] args) {
-        new Main().start();
     }
 }
