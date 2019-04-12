@@ -1,15 +1,19 @@
 import org.lwjgl.glfw.GLFW;
 
 public class Main{
+    public static final int WIDTH = 800, HEIGHT = 600, FPS = 60;
+    public static Window window = new Window(WIDTH, HEIGHT, FPS, "LWJGL");
     public static void main(String[] args){
-        Window window = new Window(800, 600, "LWJGL");
         window.create();
+        window.setBackgroundColor(1.0f, 0.0f, 0.0f);
 
         while(!window.closed()){
-            window.update();
-            if(window.isKeyPressed(GLFW.GLFW_KEY_A)) System.out.println("Pressed A");
-            if(window.isKeyReleased(GLFW.GLFW_KEY_A)) System.out.println("Released A");
-            window.swapBuffers();
+            if(window.isUpdating()){
+                window.update();
+
+                window.swapBuffers();
+            }
         }
+        window.stop();
     }
 }
