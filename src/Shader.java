@@ -1,9 +1,13 @@
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 
 public abstract class Shader {
     private int vertexShaderID, fragmentShaderID, programID;
@@ -48,17 +52,12 @@ public abstract class Shader {
         }
     }
 
-    public abstract void bindAllAttributes();
-
-    public void bindAttribute(int index, String location){
-        GL20.glBindAttribLocation(programID, index, location);
-    }
-
     public void bind(){
         GL20.glUseProgram(programID);
     }
 
     public void remove(){
+        GL20.glUseProgram(0);
         GL20.glDetachShader(programID, vertexShaderID);
         GL20.glDetachShader(programID, fragmentShaderID);
         GL20.glDeleteShader(vertexShaderID);
@@ -66,17 +65,48 @@ public abstract class Shader {
         GL20.glDeleteProgram(programID);
     }
 
+    public abstract void bindAllAttributes();
+
+    public void bindAttribute(int attribute, String variableName){
+        GL20.glBindAttribLocation(programID, attribute, variableName);
+    }
+
+    protected abstract void getAllUniforms();
+
+    protected int getUniform(String name){
+        return GL20.glGetUniformLocation(programID, name);
+    }
+
+    protected void loadFloatUniform(int location, float value){
+        GL20.glUniform1f(location, value);
+    }
+
+    protected void loadIntUniform(int location, float value){
+        GL20.glUniform1f(location, value);
+    }
+
+    protected void loadVectorUniform(int location, Vector3f value){
+        GL20.glUniform3f(location, value.x, value.y, value.z);
+    }
+
+    protected void loadMatrixUniform(int location, Matrix4f value){
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+        value.get(buffer);
+        GL20.glUniformMatrix4fv(location, false, buffer);
+    }
+
     private String readFile(String file){
-        BufferedReader reader = null;
         StringBuilder string = new StringBuilder();
         try{
-            reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
             while((line = reader.readLine()) != null){
                 string.append(line).append("\n");
             }
+            reader.close();
         }catch(IOException e){
             System.err.println("Error: Couldn't find file");
+            System.exit(-1);
         }
         return string.toString();
     }

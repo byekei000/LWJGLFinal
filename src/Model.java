@@ -3,56 +3,38 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjglx.debug.org.eclipse.jetty.util.BufferUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class Model {
-    private int vertexArrayID, vertexBufferID, indicesBufferID, vertexCount;
-    private float[] verticies;
-    private int[] indices;
-    public Model(float[] verticies, int[] indices){
-        this.verticies = verticies;
-        this.indices = indices;
-        vertexCount = indices.length;
-    }
-
-    public void create(){
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(verticies.length);
-        buffer.put(verticies);
-        buffer.flip();
-        IntBuffer indicesBuffer = BufferUtils.createIntBuffer(indices.length);
-        indicesBuffer.put(indices);
-        indicesBuffer.flip();
-        vertexArrayID = GL30.glGenVertexArrays();
+public abstract class Model {
+    protected int createVertexArray(){
+        int vertexArrayID = GL30.glGenVertexArrays();
         GL30.glBindVertexArray(vertexArrayID);
-        vertexBufferID = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferID);
-        GL15.glBufferData(GL30.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
-        indicesBufferID = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBufferID);
-        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
-        GL20.glEnableVertexAttribArray(0);
-        GL20.glVertexAttribPointer(0,3, GL11.GL_FLOAT, false, 0, 0);
-        GL30.glBindVertexArray(0);
-        GL30.glDisableVertexAttribArray(0);
-    }
-
-    public void remove(){
-        GL30.glDeleteVertexArrays(vertexArrayID);
-        GL15.glDeleteBuffers(vertexBufferID);
-        GL15.glDeleteBuffers(indicesBufferID);
-    }
-
-    public int getVertexArrayID() {
         return vertexArrayID;
     }
 
-    public int getVertexBufferID() {
-        return vertexBufferID;
+    protected int storeData(int attributeNumber, int coordSize, float[] data){
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
+        buffer.put(data);
+        buffer.flip();
+        int bufferID = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, bufferID);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(attributeNumber, coordSize, GL11.GL_FLOAT, false, 0,0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        return bufferID;
     }
 
-    public int getVertexCount() {
-        return vertexCount;
+    protected int bindIndicesBuffer(int[] indices){
+        IntBuffer buffer = BufferUtils.createIntBuffer(indices.length);
+        buffer.put(indices);
+        buffer.flip();
+        int indicesBufferID = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBufferID);
+        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        return indicesBufferID;
     }
 }
