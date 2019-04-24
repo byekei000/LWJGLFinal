@@ -5,10 +5,16 @@ import org.lwjgl.opengl.GL30;
  
 public class Renderer {
 	private BasicShader shader;
+	private Window window;
 	
-	public Renderer(BasicShader shader) {
+	public Renderer(Window window, BasicShader shader) {
 		this.shader = shader;
+		this.window = window;
 	}
+
+	public void create(){
+	    shader.loadProjectionMatrix(new Matrix4f().projection(70.0f, (float) window.getWidth() / window.getHeight(), 0.1f, 1000.0f));
+    }
 	
     public void renderModel(UntexturedModel model){
         GL30.glBindVertexArray(model.getVertexArrayID());
